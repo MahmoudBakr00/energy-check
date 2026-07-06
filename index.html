@@ -45,23 +45,24 @@
         }
         button:hover { opacity: 0.9; }
         .error { color: red; margin: 10px 0; text-align: center; }
+        .loading { color: blue; margin: 10px 0; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="login-container">
     <h2>🔐 تسجيل الدخول</h2>
-    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="email" id="email" placeholder="البريد الإلكتروني" value="mahmoudbakr0990@gmail.com">
     <input type="password" id="password" placeholder="كلمة المرور">
     <button id="loginBtn">تسجيل الدخول</button>
     <div id="errorMsg" class="error"></div>
+    <div id="loadingMsg" class="loading"></div>
 </div>
 
 <script type="importmap">
 {
     "imports": {
-        "@nhost/nhost-js": "https://cdn.jsdelivr.net/npm/@nhost/nhost-js/+esm",
-        "graphql": "https://cdn.jsdelivr.net/npm/graphql/+esm"
+        "@nhost/nhost-js": "https://cdn.jsdelivr.net/npm/@nhost/nhost-js/+esm"
     }
 }
 </script>
@@ -69,33 +70,48 @@
 <script type="module">
     import { NhostClient } from '@nhost/nhost-js';
 
+    console.log('✅ الكود يعمل!');
+
     const nhost = new NhostClient({
         subdomain: 'ee',
         region: 'eu-central-1'
     });
 
+    console.log('✅ Nhost Client جاهز');
+
     document.getElementById('loginBtn').addEventListener('click', async () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const errorMsg = document.getElementById('errorMsg');
+        const loadingMsg = document.getElementById('loadingMsg');
+
+        errorMsg.textContent = '';
+        loadingMsg.textContent = '⏳ جاري تسجيل الدخول...';
 
         if (!email || !password) {
             errorMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة المرور';
+            loadingMsg.textContent = '';
             return;
         }
 
         try {
+            console.log('📧 محاولة تسجيل الدخول:', email);
+
             const { data, error } = await nhost.auth.signIn({
                 email: email,
                 password: password
             });
 
             if (error) {
-                errorMsg.textContent = error.message;
+                console.error('❌ خطأ:', error);
+                errorMsg.textContent = '❌ ' + error.message;
+                loadingMsg.textContent = '';
                 return;
             }
 
-            // جلب دور المستخدم من جدول Users1
+            console.log('✅ تم تسجيل الدخول:', data);
+
+            // جلب دور المستخدم
             const user = data.user;
             const userData = await nhost.graphql.request(`
                 query GetUser($id: uuid!) {
@@ -106,6 +122,8 @@
                 }
             `, { id: user.id });
 
+            console.log('👤 بيانات المستخدم:', userData);
+
             const role = userData.data?.Users1_by_pk?.role || 'technician';
 
             if (role === 'admin' || role === 'Admin') {
@@ -114,7 +132,9 @@
                 window.location.href = 'scanner.html';
             }
         } catch (err) {
-            errorMsg.textContent = 'حدث خطأ، حاول مرة أخرى';
+            console.error('❌ خطأ غير متوقع:', err);
+            errorMsg.textContent = '❌ حدث خطأ، حاول مرة أخرى';
+            loadingMsg.textContent = '';
         }
     });
 </script>
