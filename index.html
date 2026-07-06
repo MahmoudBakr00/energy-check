@@ -2,491 +2,120 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>فحص بطاقات الطاقة - مع تسجيل العمليات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - فحص بطاقات الطاقة</title>
     <style>
-        * { box-sizing: border-box; user-select: none; }
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
-            padding: 10px;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             background: #e9ecef;
             margin: 0;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
         }
-        .container {
-            max-width: 700px;
-            margin: auto;
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
             background: white;
             border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 1;
+            padding: 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
         }
-        .fullscreen-feedback {
-            position: fixed;
-            top: 0;
-            left: 0;
+        h2 { text-align: center; }
+        input {
             width: 100%;
-            height: 100%;
-            background-color: transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            font-size: 3rem;
-            font-weight: bold;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #0078d4;
             color: white;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        .fullscreen-feedback.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .fullscreen-feedback .message-box {
-            background: rgba(0,0,0,0.7);
-            padding: 30px 50px;
-            border-radius: 60px;
-            backdrop-filter: blur(10px);
-            text-align: center;
-        }
-        .fullscreen-feedback button {
-            margin-top: 30px;
-            background: white;
-            color: black;
             border: none;
-            padding: 12px 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
             border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
-            pointer-events: auto;
+            margin: 10px 0;
         }
-        h2 { font-size: 1.5rem; margin-top: 0; }
-        button, .file-label {
-            background: #0078d4; color: white; border: none; padding: 14px 20px;
-            font-size: 18px; margin: 8px 0; border-radius: 50px; cursor: pointer;
-            width: 100%; display: inline-block; text-align: center; font-weight: bold;
-        }
-        .file-label { background: #28a745; margin-top: 10px; }
-        .export-btn { background: #6c757d; }
-        input[type="file"] { display: none; }
-        .result {
-            margin-top: 20px; padding: 20px; border-radius: 20px; font-weight: bold;
-            font-size: 1.8rem; text-align: center;
-        }
-        .ok { background: #d4edda; color: #155724; }
-        .ng { background: #f8d7da; color: #721c24; }
-        .info {
-            background: #f8f9fa; border-right: 4px solid #0078d4;
-            margin: 12px 0; padding: 12px; border-radius: 12px;
-            font-size: 16px; text-align: right; word-break: break-all;
-        }
-        .info span {
-            font-weight: bold; background: #e2e3e5; padding: 2px 8px;
-            border-radius: 20px; display: inline-block; margin-top: 5px;
-        }
-        .status-badge {
-            background: #ffc107; padding: 8px; border-radius: 25px;
-            font-size: 14px; margin-bottom: 15px;
-        }
-        .scan-area {
-            background: #f1f3f5; padding: 15px; border-radius: 20px; margin: 15px 0;
-            text-align: center;
-        }
-        .scan-area input {
-            width: 100%; padding: 14px; font-size: 18px; text-align: center;
-            border: 2px solid #ced4da; border-radius: 50px; margin: 10px 0;
-            font-family: monospace;
-        }
-        .scan-area label {
-            font-weight: bold; display: block; margin-bottom: 5px;
-        }
-        hr { margin: 20px 0; }
-        .footer { font-size: 12px; color: gray; margin-top: 15px; }
-        .sample-data {
-            background: #e9ecef; padding: 8px; border-radius: 12px; font-size: 12px;
-            text-align: left; direction: ltr; max-height: 100px; overflow-y: auto;
-            margin-top: 10px;
-        }
-        .log-area {
-            background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 12px;
-            margin-top: 20px; padding: 10px; text-align: left; font-size: 12px;
-            max-height: 200px; overflow-y: auto;
-        }
-        .log-entry {
-            border-bottom: 1px solid #eee; padding: 5px; font-family: monospace;
-        }
-        @media (max-width: 600px) {
-            .result { font-size: 1.4rem; }
-            button, .file-label { font-size: 16px; padding: 12px; }
-            .fullscreen-feedback { font-size: 2rem; }
-        }
+        button:hover { opacity: 0.9; }
+        .error { color: red; margin: 10px 0; text-align: center; }
     </style>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 
-<div id="fullscreenMsg" class="fullscreen-feedback">
-    <div class="message-box">
-        <span id="feedbackText"></span>
-        <button id="dismissErrorBtn">موافق</button>
-    </div>
+<div class="login-container">
+    <h2>🔐 تسجيل الدخول</h2>
+    <input type="email" id="email" placeholder="البريد الإلكتروني">
+    <input type="password" id="password" placeholder="كلمة المرور">
+    <button id="loginBtn">تسجيل الدخول</button>
+    <div id="errorMsg" class="error"></div>
 </div>
 
-<div class="container">
-    <h2>📱 فحص بطاقات الطاقة</h2>
-
-    <label class="file-label" for="excelUpload">📂 1. تحميل ملف Excel الأساسي (عمود A = رقم الطلب، عمود B = الرابط)</label>
-    <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv">
-    <div id="uploadStatus" class="status-badge">❌ لم يتم تحميل البيانات</div>
-    <div id="sampleData" class="sample-data" style="display: none;"></div>
-
-    <div class="scan-area">
-        <label>🔍 2. مسح الباركود أو QR (أي ترتيب)</label>
-        <input type="text" id="scanInput" placeholder="ضع المؤشر هنا ثم امسح الباركود أو QR" autofocus>
-        <small>سيتم التعرف تلقائياً: باركود الثلاجة (أول 11 رمز) أو رابط الطاقة</small>
-    </div>
-
-    <div id="currentData" class="info">
-        📌 آخر رقم طلب مسح: <span id="orderNumber">---</span><br>
-        🔗 آخر رابط مسح: <span id="extractedLink">---</span>
-    </div>
-
-    <div id="finalResult" class="result">انتظر رفع الملف Excel</div>
-
-    <hr>
-
-    <button id="exportLogsBtn" class="export-btn">📎 تصدير كل العمليات المسجلة إلى Excel</button>
-    <button id="clearLogsBtn" style="background:#dc3545;">🗑 مسح سجل العمليات</button>
-
-    <div class="log-area">
-        <strong>📋 آخر العمليات المسجلة (أحدث 10):</strong>
-        <div id="logList"></div>
-    </div>
-
-    <div class="footer">كل عملية مسح (ناجحة أو فاشلة) تُسجل محلياً. يمكنك تصديرها إلى ملف Excel في أي وقت.</div>
-</div>
-
-<script>
-    let sheetData = [];
-    let scannedOrder = "";
-    let scannedLink = "";
-    let audioCtx = null;
-    let errorSoundInterval = null;
-    let errorLock = false;
-    let operationsLog = [];
-
-    function loadLogFromStorage() {
-        const stored = localStorage.getItem("energyCheckLog");
-        if (stored) {
-            try {
-                operationsLog = JSON.parse(stored);
-            } catch(e) { operationsLog = []; }
-        } else {
-            operationsLog = [];
-        }
-        updateLogDisplay();
+<script type="importmap">
+{
+    "imports": {
+        "@nhost/nhost-js": "https://cdn.jsdelivr.net/npm/@nhost/nhost-js/+esm",
+        "graphql": "https://cdn.jsdelivr.net/npm/graphql/+esm"
     }
+}
+</script>
 
-    function saveLogToStorage() {
-        localStorage.setItem("energyCheckLog", JSON.stringify(operationsLog));
-    }
+<script type="module">
+    import { NhostClient } from '@nhost/nhost-js';
 
-    function addLogEntry(order, link, result) {
-        const now = new Date();
-        const timestamp = now.toLocaleString('ar-EG', { hour12: false });
-        operationsLog.unshift({
-            timestamp: timestamp,
-            order: order,
-            link: link,
-            result: result
-        });
-        if (operationsLog.length > 500) operationsLog.pop();
-        saveLogToStorage();
-        updateLogDisplay();
-    }
+    const nhost = new NhostClient({
+        subdomain: 'ee',
+        region: 'eu-central-1'
+    });
 
-    function clearLog() {
-        operationsLog = [];
-        saveLogToStorage();
-        updateLogDisplay();
-    }
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('errorMsg');
 
-    function updateLogDisplay() {
-        const logDiv = document.getElementById("logList");
-        if (!logDiv) return;
-        if (operationsLog.length === 0) {
-            logDiv.innerHTML = "<div class='log-entry'>لا توجد عمليات مسجلة بعد.</div>";
+        if (!email || !password) {
+            errorMsg.textContent = 'يرجى إدخال البريد الإلكتروني وكلمة المرور';
             return;
         }
-        let html = "";
-        for (let i = 0; i < Math.min(10, operationsLog.length); i++) {
-            const entry = operationsLog[i];
-            html += `<div class="log-entry">⏱ ${entry.timestamp} | 🆔 ${entry.order} | 🔗 ${entry.link.substring(0, 30)}... | 🏷 ${entry.result}</div>`;
-        }
-        logDiv.innerHTML = html;
-    }
 
-    function stopErrorSound() {
-        if (errorSoundInterval) {
-            clearInterval(errorSoundInterval);
-            errorSoundInterval = null;
-        }
-    }
-
-    function playAlertBeep() {
         try {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.frequency.value = 880;
-            gain.gain.value = 0.85;
-            osc.type = "square";
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
-            osc.stop(audioCtx.currentTime + 0.3);
-            if (audioCtx.state === "suspended") audioCtx.resume();
-        } catch(e) { console.warn("Sound error", e); }
-    }
+            const { data, error } = await nhost.auth.signIn({
+                email: email,
+                password: password
+            });
 
-    function startContinuousErrorSound() {
-        if (errorSoundInterval) stopErrorSound();
-        playAlertBeep();
-        errorSoundInterval = setInterval(() => {
-            if (errorLock) playAlertBeep();
-            else stopErrorSound();
-        }, 400);
-    }
-
-    function playOkSound() {
-        try {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.frequency.value = 880;
-            gain.gain.value = 0.7;
-            osc.type = "sine";
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
-            osc.stop(audioCtx.currentTime + 0.5);
-            if (audioCtx.state === "suspended") audioCtx.resume();
-        } catch(e) { console.warn("Sound error", e); }
-    }
-
-    const feedbackDiv = document.getElementById("fullscreenMsg");
-    const feedbackSpan = document.getElementById("feedbackText");
-    const dismissBtn = document.getElementById("dismissErrorBtn");
-
-    function showFullscreen(message, bgColor, textColor = "white", persistent = false) {
-        feedbackSpan.innerText = message;
-        feedbackDiv.style.backgroundColor = bgColor;
-        feedbackDiv.style.color = textColor;
-        feedbackDiv.classList.add("show");
-        if (!persistent) {
-            setTimeout(() => {
-                if (!errorLock) {
-                    feedbackDiv.classList.remove("show");
-                    setTimeout(() => {
-                        feedbackDiv.style.backgroundColor = "transparent";
-                    }, 200);
-                }
-            }, 500);
-        } else {
-            errorLock = true;
-            startContinuousErrorSound();
-            document.getElementById("scanInput").disabled = true;
-        }
-    }
-
-    function hideFullscreen() {
-        if (!errorLock) return;
-        stopErrorSound();
-        feedbackDiv.classList.remove("show");
-        feedbackDiv.style.backgroundColor = "transparent";
-        errorLock = false;
-        document.getElementById("scanInput").disabled = false;
-        document.getElementById("scanInput").focus();
-        clearAll();
-        document.getElementById("finalResult").innerHTML = "🔄 جاهز لمسح جديد";
-        document.getElementById("finalResult").className = "result";
-    }
-
-    dismissBtn.addEventListener("click", hideFullscreen);
-
-    document.getElementById("excelUpload").addEventListener("change", function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            const data = new Uint8Array(evt.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-            if (!rows || rows.length < 2) {
-                alert("الملف فارغ أو لا يحتوي على بيانات");
+            if (error) {
+                errorMsg.textContent = error.message;
                 return;
             }
-            let startRow = 0;
-            if (rows[0] && rows[0].length >= 2 && 
-                (rows[0][0]?.toString().includes("رقم") || rows[0][0]?.toString().includes("order"))) {
-                startRow = 1;
-            }
-            sheetData = [];
-            for (let i = startRow; i < rows.length; i++) {
-                let fullOrder = rows[i][0] ? rows[i][0].toString().trim() : "";
-                let link = rows[i][1] ? rows[i][1].toString().trim() : "";
-                if (fullOrder && link) {
-                    fullOrder = fullOrder.replace(/\s/g, '');
-                    let first11 = fullOrder.substring(0, 11);
-                    sheetData.push({ full: fullOrder, first11: first11, link: link });
-                }
-            }
-            if (sheetData.length === 0) {
-                alert("لم يتم العثور على بيانات صالحة في العمود A و B");
-                return;
-            }
-            document.getElementById("uploadStatus").innerHTML = `✅ تم تحميل ${sheetData.length} سجل`;
-            document.getElementById("uploadStatus").style.background = "#d4edda";
-            let sampleHtml = "<strong>📋 عينة (أول 11 خانة من العمود A):</strong><br>";
-            for (let i = 0; i < Math.min(5, sheetData.length); i++) {
-                sampleHtml += `${sheetData[i].full} → ${sheetData[i].first11}<br>`;
-            }
-            document.getElementById("sampleData").innerHTML = sampleHtml;
-            document.getElementById("sampleData").style.display = "block";
-            document.getElementById("finalResult").innerHTML = "✅ البيانات جاهزة. امسح العناصر بأي ترتيب";
-            document.getElementById("finalResult").className = "result";
-            clearAll();
-        };
-        reader.readAsArrayBuffer(file);
-    });
 
-    function clearAll() {
-        if (errorLock) return;
-        scannedOrder = "";
-        scannedLink = "";
-        document.getElementById("orderNumber").innerText = "---";
-        document.getElementById("extractedLink").innerText = "---";
-        document.getElementById("scanInput").value = "";
-        document.getElementById("finalResult").innerHTML = "في انتظار المسح...";
-        document.getElementById("finalResult").className = "result";
-    }
-
-    const scanInput = document.getElementById("scanInput");
-    
-    function processScan(value) {
-        if (errorLock) return;
-        let trimmed = value.trim();
-        if (trimmed === "") return;
-        
-        if (trimmed.startsWith("http")) {
-            scannedLink = trimmed;
-            document.getElementById("extractedLink").innerText = scannedLink;
-        } else {
-            let cleaned = trimmed.replace(/\s/g, '');
-            let orderPart = cleaned.substring(0, 11);
-            scannedOrder = orderPart;
-            document.getElementById("orderNumber").innerText = scannedOrder;
-        }
-        scanInput.value = "";
-        checkAndCompare();
-    }
-    
-    scanInput.addEventListener("input", function() {
-        setTimeout(() => {
-            if (scanInput.value.length > 0 && !errorLock) {
-                processScan(scanInput.value);
-            }
-        }, 50);
-    });
-    scanInput.addEventListener("change", function() {
-        if (scanInput.value.length > 0 && !errorLock) {
-            processScan(scanInput.value);
-        }
-    });
-    
-    function checkAndCompare() {
-        if (sheetData.length === 0) {
-            document.getElementById("finalResult").innerHTML = "⚠️ يرجى رفع ملف Excel أولاً";
-            document.getElementById("finalResult").className = "result ng";
-            showFullscreen("⚠ NO FILE", "#ffc107", "#333", true);
-            addLogEntry("---", "---", "NO FILE");
-            return;
-        }
-        
-        if (scannedOrder && scannedLink) {
-            const found = sheetData.find(entry => entry.first11 === scannedOrder);
-            let resultText = "";
-            if (!found) {
-                resultText = "NOT FOUND";
-                showFullscreen("⚠ NOT FOUND", "#ffc107", "#333", true);
-                addLogEntry(scannedOrder, scannedLink, resultText);
-            } else if (found.link === scannedLink) {
-                resultText = "OK";
-                playOkSound();
-                showFullscreen("✔ OK", "#28a745", "white", false);
-                addLogEntry(scannedOrder, scannedLink, resultText);
-                setTimeout(() => {
-                    if (!errorLock) {
-                        clearAll();
-                        document.getElementById("finalResult").innerHTML = "🔄 جاهز لمسح جديد";
-                        document.getElementById("finalResult").className = "result";
+            // جلب دور المستخدم من جدول Users1
+            const user = data.user;
+            const userData = await nhost.graphql.request(`
+                query GetUser($id: uuid!) {
+                    Users1_by_pk(id: $id) {
+                        name
+                        role
                     }
-                }, 1000);
+                }
+            `, { id: user.id });
+
+            const role = userData.data?.Users1_by_pk?.role || 'technician';
+
+            if (role === 'admin' || role === 'Admin') {
+                window.location.href = 'dashboard.html';
             } else {
-                resultText = "NG (link mismatch)";
-                showFullscreen("✘ NG", "#dc3545", "white", true);
-                addLogEntry(scannedOrder, scannedLink, resultText);
+                window.location.href = 'scanner.html';
             }
-        } else {
-            if (scannedOrder && !scannedLink)
-                document.getElementById("finalResult").innerHTML = "⏳ انتظر مسح رابط الطاقة";
-            else if (!scannedOrder && scannedLink)
-                document.getElementById("finalResult").innerHTML = "⏳ انتظر مسح باركود الثلاجة";
-            else
-                document.getElementById("finalResult").innerHTML = "📱 امسح العنصرين (أي ترتيب)";
-            document.getElementById("finalResult").className = "result";
+        } catch (err) {
+            errorMsg.textContent = 'حدث خطأ، حاول مرة أخرى';
         }
-    }
-    
-    function exportLogToExcel() {
-        if (operationsLog.length === 0) {
-            alert("لا توجد عمليات مسجلة لتصديرها.");
-            return;
-        }
-        const worksheetData = [["التاريخ والوقت", "رقم الطلب (أول 11)", "الرابط", "النتيجة"]];
-        for (let entry of operationsLog) {
-            worksheetData.push([entry.timestamp, entry.order, entry.link, entry.result]);
-        }
-        const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "سجل العمليات");
-        XLSX.writeFile(wb, `سجل_فحص_الطاقة_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
-    }
-
-    document.getElementById("exportLogsBtn").addEventListener("click", exportLogToExcel);
-    document.getElementById("clearLogsBtn").addEventListener("click", () => {
-        if (confirm("هل تريد مسح كل السجلات المخزنة؟")) {
-            clearLog();
-        }
-    });
-
-    window.addEventListener("load", () => {
-        loadLogFromStorage();
-        clearAll();
-        scanInput.focus();
-        document.body.addEventListener("click", () => {
-            if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-        }, { once: true });
     });
 </script>
 </body>
