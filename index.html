@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - فحص بطاقات الطاقة</title>
+    <title>تسجيل الدخول</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -59,19 +59,13 @@
     <div id="loadingMsg" class="loading"></div>
 </div>
 
-<script type="importmap">
-{
-    "imports": {
-        "@nhost/nhost-js": "https://cdn.jsdelivr.net/npm/@nhost/nhost-js/+esm"
-    }
-}
-</script>
+<!-- استخدام CDN مباشر بدون import map -->
+<script src="https://cdn.jsdelivr.net/npm/@nhost/nhost-js@2/dist/nhost-js.umd.min.js"></script>
 
-<script type="module">
-    import { NhostClient } from '@nhost/nhost-js';
-
+<script>
     console.log('✅ الكود يعمل!');
 
+    // استخدام nhost من الـ global scope
     const nhost = new NhostClient({
         subdomain: 'ee',
         region: 'eu-central-1'
@@ -79,7 +73,7 @@
 
     console.log('✅ Nhost Client جاهز');
 
-    document.getElementById('loginBtn').addEventListener('click', async () => {
+    document.getElementById('loginBtn').addEventListener('click', async function() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const errorMsg = document.getElementById('errorMsg');
@@ -110,18 +104,29 @@
             }
 
             console.log('✅ تم تسجيل الدخول:', data);
+            loadingMsg.textContent = '✅ تم تسجيل الدخول بنجاح! جاري التحويل...';
 
-            // جلب دور المستخدم
+            // جلب دور المستخدم من جدول Users1
             const user = data.user;
-            const userData = await nhost.graphql.request(`
-                query GetUser($id: uuid!) {
-                    Users1_by_pk(id: $id) {
-                        name
-                        role
-                    }
-                }
-            `, { id: user.id });
+            const graphqlResponse = await fetch('https://ee.nhost.app/v1/graphql', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: `
+                        query GetUser($id: uuid!) {
+                            Users1_by_pk(id: $id) {
+                                name
+                                role
+                            }
+                        }
+                    `,
+                    variables: { id: user.id }
+                })
+            });
 
+            const userData = await graphqlResponse.json();
             console.log('👤 بيانات المستخدم:', userData);
 
             const role = userData.data?.Users1_by_pk?.role || 'technician';
@@ -134,7 +139,7 @@
         } catch (err) {
             console.error('❌ خطأ غير متوقع:', err);
             errorMsg.textContent = '❌ حدث خطأ، حاول مرة أخرى';
-            loadingMsg.textContent = ''; 
+            loadingMsg.textContent = '';
         }
     });
 </script>
