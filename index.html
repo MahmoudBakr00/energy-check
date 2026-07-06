@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول - فحص بطاقات الطاقة</title>
+    <title>تسجيل الدخول</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -46,7 +46,7 @@
         button:hover { opacity: 0.9; }
         .error { color: red; margin: 10px 0; text-align: center; }
         .loading { color: blue; margin: 10px 0; text-align: center; }
-        .info { color: green; margin: 10px 0; text-align: center; }
+        .info { color: green; margin: 10px 0; text-align: center; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -64,8 +64,10 @@
 <script>
     console.log('✅ تم تحميل الصفحة');
 
-    // الرابط الصحيح لـ Nhost Auth
+    // 🔑 الرابط الصحيح من Nhost
     const NHOST_URL = 'https://ee.nhost.app';
+
+    document.getElementById('infoMsg').textContent = '🌐 الاتصال بـ: ' + NHOST_URL;
 
     document.getElementById('loginBtn').addEventListener('click', login);
     document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
@@ -79,7 +81,6 @@
         const infoMsg = document.getElementById('infoMsg');
 
         errorMsg.textContent = '';
-        infoMsg.textContent = '';
         loadingMsg.textContent = '⏳ جاري تسجيل الدخول...';
 
         if (!email || !password) {
@@ -89,13 +90,9 @@
         }
 
         try {
-            infoMsg.textContent = '📡 محاولة الاتصال بـ Nhost...';
-            
-            // محاولة 1: الرابط مع /v1
-            let url = NHOST_URL + '/v1/auth/signin/email-password';
-            infoMsg.textContent = '📡 الاتصال بـ: ' + url;
+            infoMsg.textContent = '📡 محاولة الاتصال...';
 
-            const response = await fetch(url, {
+            const response = await fetch(NHOST_URL + '/v1/auth/signin/email-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,14 +103,12 @@
                 })
             });
 
-            infoMsg.textContent = '📡 تم الرد: ' + response.status;
+            const data = await response.json();
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'خطأ في تسجيل الدخول (الكود: ' + response.status + ')');
+                throw new Error(data.message || 'خطأ في تسجيل الدخول');
             }
 
-            const data = await response.json();
             console.log('✅ تم تسجيل الدخول:', data);
             loadingMsg.textContent = '✅ تم تسجيل الدخول! جاري التحويل...';
 
@@ -158,12 +153,11 @@
             console.error('❌ خطأ:', err);
             errorMsg.textContent = '❌ ' + err.message;
             loadingMsg.textContent = '';
-            infoMsg.textContent = '💡 تأكد من أن الرابط صحيح: ' + NHOST_URL;
+            infoMsg.textContent = '💡 الرابط: ' + NHOST_URL;
         }
     }
 
     console.log('✅ كل شيء جاهز');
-    document.getElementById('infoMsg').textContent = '💡 جاهز لتسجيل الدخول إلى: ' + NHOST_URL;
 </script>
 </body>
 </html>
