@@ -46,30 +46,40 @@
         button:hover { opacity: 0.9; }
         .error { color: red; margin: 10px 0; text-align: center; }
         .loading { color: blue; margin: 10px 0; text-align: center; }
+        .info { color: green; margin: 10px 0; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="login-container">
     <h2>🔐 تسجيل الدخول</h2>
-    <input type="email" id="email" placeholder="البريد الإلكتروني" value="mahmoudbakr0990@gmail.com">
+    <input type="email" id="email" placeholder="البريد الإلكتروني" value="mahmoudbakr0780@gmail.com">
     <input type="password" id="password" placeholder="كلمة المرور">
     <button id="loginBtn">تسجيل الدخول</button>
     <div id="errorMsg" class="error"></div>
     <div id="loadingMsg" class="loading"></div>
+    <div id="infoMsg" class="info"></div>
 </div>
 
 <script>
     console.log('✅ تم تحميل الصفحة');
 
-    // دالة تسجيل الدخول
+    // الرابط الصحيح لـ Nhost Auth
+    const NHOST_URL = 'https://ee.nhost.app';
+
+    document.getElementById('loginBtn').addEventListener('click', login);
+    document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+    document.getElementById('email').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
     async function login() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const errorMsg = document.getElementById('errorMsg');
         const loadingMsg = document.getElementById('loadingMsg');
+        const infoMsg = document.getElementById('infoMsg');
 
         errorMsg.textContent = '';
+        infoMsg.textContent = '';
         loadingMsg.textContent = '⏳ جاري تسجيل الدخول...';
 
         if (!email || !password) {
@@ -79,8 +89,13 @@
         }
 
         try {
-            // استدعاء Nhost Auth API مباشرة
-            const response = await fetch('https://ee.nhost.app/v1/auth/signin/email-password', {
+            infoMsg.textContent = '📡 محاولة الاتصال بـ Nhost...';
+            
+            // محاولة 1: الرابط مع /v1
+            let url = NHOST_URL + '/v1/auth/signin/email-password';
+            infoMsg.textContent = '📡 الاتصال بـ: ' + url;
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,23 +106,25 @@
                 })
             });
 
-            const data = await response.json();
+            infoMsg.textContent = '📡 تم الرد: ' + response.status;
 
             if (!response.ok) {
-                throw new Error(data.message || 'خطأ في تسجيل الدخول');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'خطأ في تسجيل الدخول (الكود: ' + response.status + ')');
             }
 
+            const data = await response.json();
             console.log('✅ تم تسجيل الدخول:', data);
             loadingMsg.textContent = '✅ تم تسجيل الدخول! جاري التحويل...';
 
-            // تخزين الـ session
+            // تخزين الجلسة
             localStorage.setItem('nhost_session', JSON.stringify(data));
 
             // جلب دور المستخدم
             const session = data.session;
             const userId = session.user.id;
 
-            const userResponse = await fetch('https://ee.nhost.app/v1/graphql', {
+            const graphqlResponse = await fetch(NHOST_URL + '/v1/graphql', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -126,7 +143,7 @@
                 })
             });
 
-            const userData = await userResponse.json();
+            const userData = await graphqlResponse.json();
             console.log('👤 بيانات المستخدم:', userData);
 
             const role = userData.data?.Users1_by_pk?.role || 'technician';
@@ -141,25 +158,12 @@
             console.error('❌ خطأ:', err);
             errorMsg.textContent = '❌ ' + err.message;
             loadingMsg.textContent = '';
+            infoMsg.textContent = '💡 تأكد من أن الرابط صحيح: ' + NHOST_URL;
         }
     }
 
-    // ربط الزر
-    document.getElementById('loginBtn').addEventListener('click', login);
-
-    // دعم الضغط على Enter
-    document.getElementById('password').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            login();
-        }
-    });
-    document.getElementById('email').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            login();
-        }
-    });
-
     console.log('✅ كل شيء جاهز');
+    document.getElementById('infoMsg').textContent = '💡 جاهز لتسجيل الدخول إلى: ' + NHOST_URL;
 </script>
 </body>
 </html>
